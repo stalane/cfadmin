@@ -98,14 +98,17 @@ and logged in (`wrangler login`) to your Cloudflare account.
 
 ```bash
 # global
+mkdir -p ~/.config/opencode/agents/
 cp agent/cfadmin.md ~/.config/opencode/agents/
 # …or per-project (from your project root)
+mkdir -p .opencode/agents/
 cp agent/cfadmin.md .opencode/agents/
 ```
 
 **2. Install the skills:**
 
 ```bash
+mkdir -p ~/.config/opencode/skills/
 cp -r skills/* ~/.config/opencode/skills/
 ```
 
@@ -118,7 +121,8 @@ your Cloudflare account on first use. The five servers: `cloudflare`,
 
 **4. Restart OpenCode** — agents and skills load once at startup.
 Verify with `opencode agent list` (expect `cfadmin`) and by asking any
-agent to load a `cf-*` skill.
+agent to load a `cf-*` skill. (If `opencode` isn't on your `PATH`, invoke
+it by its full path.)
 
 **5. Confirm the hard-refuse gate (optional, 2 minutes):** ask cfadmin to
 "build a Docker Compose backend with Postgres, Redis and Express, no
