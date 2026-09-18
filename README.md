@@ -1,13 +1,20 @@
-# cfadmin — Cloudflare-only platform engineer for OpenCode
+# cfadmin ⚡
 
-A custom OpenCode agent plus five skills that restrict all building to
-projects deployable with `wrangler` on Cloudflare infrastructure. Anything
-that needs a VPS, Docker host, or self-hosted database is refused in that
-shape and redirected to the Cloudflare-native equivalent.
+> **Your OpenCode agent that only speaks Cloudflare.** No VPS, no Docker,
+> no self-hosted databases — if it can't `wrangler deploy`, cfadmin won't
+> build it that way. It refuses the wrong shape and hands you the
+> Cloudflare-native design instead.
 
-This repo ships the installable files: `agent/` (the agent definition),
-`skills/` (the five `cf-*` skills), and `mcp.cloudflare.json` (the five
-Cloudflare MCP servers to wire into OpenCode).
+[![GitHub stars](https://img.shields.io/github/stars/stalane/cfadmin?style=flat-square)](https://github.com/stalane/cfadmin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)](LICENSE)
+[![OpenCode](https://img.shields.io/badge/OpenCode-agent-blue?style=flat-square)](https://opencode.ai/docs/agents/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-orange?style=flat-square)](https://developers.cloudflare.com/workers/)
+
+| | |
+|---|---|
+| 🤖 `agent/` | The cfadmin agent definition — drop into OpenCode |
+| 🛠 `skills/` | Five `cf-*` skills: deploy, data, realtime, AI, frontdoor |
+| 🔌 `mcp.cloudflare.json` | Five Cloudflare MCP servers to wire into OpenCode |
 
 ## `cfadmin` agent
 
