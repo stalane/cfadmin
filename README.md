@@ -129,6 +129,21 @@ it by its full path.)
 lecture". It must refuse that shape and redirect to
 D1/KV/Workers — if it complies, the install is broken.
 
+## Recommended companion
+
+[Cloudflare's `security-audit-skill`](https://github.com/cloudflare/security-audit-skill)
+(MIT) turns your agent into a multi-phase security auditor with independently
+verified, machine-readable findings — a natural pre-deploy gate for
+auth/frontdoor-adjacent Workers:
+
+```bash
+npx skills add https://github.com/cloudflare/security-audit-skill \
+  --skill security-audit --global
+```
+
+It's token-heavy by design (parallel hunter/verifier subagents), so treat it
+as an offered audit pass, not a mandatory step.
+
 ## Redaction policy
 
 No account identifiers live in this directory — no account names, emails,
