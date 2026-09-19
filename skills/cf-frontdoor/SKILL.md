@@ -23,6 +23,8 @@ Managed tunnel (note: create-body `config` is NOT persisted — always PUT confi
 3. `POST /zones/{ZONE}/dns_records` CNAME `app → {TUNNEL}.cfargotunnel.com` (proxied)
 4. `GET .../cfd_tunnel/{TUNNEL}/token` → run `cloudflared` with the token; verify with `curl`.
 
+Local static origin (tunnel): serve with Caddy on loopback via systemd (`file_server` + `encode gzip`; TLS terminates at Cloudflare) — `python3 -m http.server` is dev-only, never the tunnel origin. Run the tunnel itself as a systemd unit (`Restart=always`, token in a root-owned 600 env file like `/etc/cloudflared/<name>.env`); `bgstart` cloudflared only for throwaway tests. House pattern: treasury/cfadmin site blocks.
+
 Static sites: Workers Static Assets or `wrangler pages deploy --branch main` for production. Protection: WAF managed rules + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
 
 ## Common Mistakes
