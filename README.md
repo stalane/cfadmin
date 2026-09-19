@@ -61,9 +61,9 @@ a separate non-Cloudflare host is not.
 
 | Skill | Plane | Reuses |
 |---|---|---|
-| `cf-workers-deploy` | `wrangler.jsonc`, envs, secrets, builds/observability triage | `wrangler`, `workers-best-practices` |
+| `cf-workers-deploy` | `wrangler.jsonc`, envs, secrets, builds/observability triage, CI via `wrangler-action` | `wrangler`, `workers-best-practices` |
 | `cf-data` | D1 / KV / R2 / Hyperdrive / Queues choice + recipes | `cloudflare` data refs |
-| `cf-realtime` | Durable Objects / Workflows / Containers / Agents / Cron | `durable-objects`, `agents-sdk` |
+| `cf-realtime` | Durable Objects / Workflows / Containers / Sandbox / Agents / Cron (`agents-starter` scaffold) | `durable-objects`, `agents-sdk` |
 | `cf-ai` | Workers AI / Vectorize / AI Gateway | `cloudflare` AI refs |
 | `cf-frontdoor` | DNS / Pages / Tunnel / WAF / Turnstile / Email | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
 
