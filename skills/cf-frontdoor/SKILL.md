@@ -23,7 +23,7 @@ Managed tunnel (note: create-body `config` is NOT persisted — always PUT confi
 3. `POST /zones/{ZONE}/dns_records` CNAME `app → {TUNNEL}.cfargotunnel.com` (proxied)
 4. `GET .../cfd_tunnel/{TUNNEL}/token` → run `cloudflared` with the token; verify with `curl`.
 
-Static sites: Workers Static Assets or `wrangler pages deploy --branch main` for production. Protection: WAF managed rules + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`). Email: Email Routing + Email Workers (`cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
+Static sites: Workers Static Assets or `wrangler pages deploy --branch main` for production. Protection: WAF managed rules + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
 
 ## Common Mistakes
 

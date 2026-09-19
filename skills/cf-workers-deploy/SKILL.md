@@ -28,7 +28,7 @@ Prefer `wrangler.jsonc` (newer features are JSON-only). Minimal config:
 }
 ```
 
-Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) → `wrangler deploy`. Secrets: `wrangler secret put NAME` (never in config/source). Pages production: always `--branch main`. Startup check: `wrangler check startup`. Pre-deploy for auth/frontdoor-adjacent Workers, offer a `security-audit` pass (Cloudflare's audit skill: `npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global`) — offer, don't mandate: it runs parallel hunter/verifier subagents and is token-heavy by design.
+Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) → `wrangler deploy`. Secrets: `wrangler secret put NAME` (never in config/source). Pages production: always `--branch main`. Startup check: `wrangler check startup`. CI: `wrangler-action` with the API token in GitHub Secrets (never in workflow YAML), deploying from `main`. Pre-deploy for auth/frontdoor-adjacent Workers, offer a `security-audit` pass (Cloudflare's audit skill: `npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global`) — offer, don't mandate: it runs parallel hunter/verifier subagents and is token-heavy by design.
 
 Triage: failed builds → `cloudflare-builds` MCP (list by worker ID, get build + logs by UUID). Live errors → `cloudflare-observability` MCP (confirm keys via keys/values endpoints before filtering; `$metadata.service`, `$metadata.message`, `$metadata.error` first).
 

@@ -36,4 +36,4 @@ Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than
 
 ## Reuses
 
-`cloudflare` (`workers-ai/`, `vectorize/`, `ai-gateway/`, `ai-search/` refs), `workers-best-practices` (streaming responses, waitUntil for logging).
+`cloudflare` (`workers-ai/`, `vectorize/`, `ai-gateway/`, `ai-search/` refs), `workers-best-practices` (streaming responses, waitUntil for logging), `ai-utils` dev toolkit.

@@ -47,4 +47,4 @@ Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperd
 
 ## Reuses
 
-`cloudflare` (`d1/`, `kv/`, `r2/`, `hyperdrive/`, `queues/`, `pipelines/` refs), `workers-best-practices` (bindings-over-REST, streaming).
+`cloudflare` (`d1/`, `kv/`, `r2/`, `hyperdrive/`, `queues/`, `pipelines/` refs), `workers-best-practices` (bindings-over-REST, streaming). Official starters: `hyperdrive-demo`, `d1-northwind`.

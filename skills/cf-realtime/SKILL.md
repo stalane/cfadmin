@@ -18,8 +18,8 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 
 - **Per-entity state / WebSockets** → Durable Object (one SQLite-backed stub per room/user/device). Replaces socket.io servers, Redis pub/sub.
 - **Long multi-step jobs** (retries, sleeps, human approval) → Workflows. Replaces Celery/RQ workers.
-- **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern). Replaces Docker-on-VPS.
-- **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern).
+- **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern). Replaces Docker-on-VPS. For running untrusted code (AI runners, judges, eval harnesses) prefer `sandbox-sdk` over Containers.
+- **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern); scaffold new ones from `agents-starter`.
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
 - **Schedules** → Cron Triggers in `wrangler.jsonc` (`crons: ["*/5 * * * *"]`), not a daemon.
 
@@ -39,4 +39,4 @@ export class Room implements DurableObject {
 
 ## Reuses
 
-`durable-objects`, `agents-sdk`, `cloudflare` (`durable-objects/`, `workflows/`, `containers/`, `queues/`, `cron-triggers/` refs), `workers-best-practices` (waitUntil, global-state rules).
+`durable-objects`, `agents-sdk`, `cloudflare` (`durable-objects/`, `workflows/`, `containers/`, `queues/`, `cron-triggers/` refs), `workers-best-practices` (waitUntil, global-state rules). Official starters: `workflows-starter`, `queues-web-crawler`.
