@@ -45,6 +45,13 @@ Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperd
 - KV for relational queries; D1 for blob storage; R2 for per-request counters.
 - Forgetting `wrangler types` after adding a binding.
 
+## Quota discipline (free tier: 100k rows written, 5M rows read/day)
+
+- Verify with `COUNT(*)` and indexed lookups — never `SELECT *` dumps of large tables (one 20k-row dump costs 20k reads; a cross join can burn 100M+ in a single query and cap the account for a day).
+- Never join without `ON`; sanity-check row estimates before running analytics on D1.
+- Batch all verification into single statements; meter heavy jobs (`rows_read`/`rows_written` in every execute response) and stop when the day's budget is threatened.
+- Split bulk seeds across UTC days so no single day exceeds ~95k writes.
+
 ## Reuses
 
 `cloudflare` (`d1/`, `kv/`, `r2/`, `hyperdrive/`, `queues/`, `pipelines/` refs), `workers-best-practices` (bindings-over-REST, streaming). Official starters: `hyperdrive-demo`, `d1-northwind`.
