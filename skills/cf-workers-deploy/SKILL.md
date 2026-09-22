@@ -32,6 +32,8 @@ Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) �
 
 Triage: failed builds → `cloudflare-builds` MCP (list by worker ID, get build + logs by UUID). Live errors → `cloudflare-observability` MCP (confirm keys via keys/values endpoints before filtering; `$metadata.service`, `$metadata.message`, `$metadata.error` first).
 
+Python Workers are GA (first-class, no JS glue): FastAPI/Django/Flask via `workers.asgi`/`wsgi` — patterns in `cloudflare/python-workers-examples`.
+
 ## Quick Reference
 
 | Task | Command |
@@ -51,4 +53,4 @@ Triage: failed builds → `cloudflare-builds` MCP (list by worker ID, get build 
 
 ## Reuses
 
-`wrangler`, `workers-best-practices`, `cloudflare` (`workers/`, `pages/`, `observability/` refs), `cloudflare-builds`, `cloudflare-observability`.
+`wrangler`, `workers-best-practices`, `cloudflare` (`workers/`, `pages/`, `observability/` refs), `cloudflare-builds`, `cloudflare-observability`, `cloudflare/ci` (emerging Cloudflare-native CI alternative to wrangler-action).

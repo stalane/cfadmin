@@ -36,7 +36,7 @@ digraph choice {
 
 Config sketch (`wrangler.jsonc`): `d1.databases`, `kv_namespaces`, `r2_buckets`, `hyperdrive`, `queues.producers/consumers`. Then `wrangler types`. Access via `env.DB/KV/R2` in-process. Queues for async/background work off the critical path; Pipelines for streaming ETL to R2.
 
-Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk).
+Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk). Python drivers (`asyncpg`/`aiomysql`) work over Hyperdrive's TCP sockets in Python Workers.
 
 ## Common Mistakes
 

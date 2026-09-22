@@ -25,7 +25,7 @@ await env.VECTORIZE.upsert([{ id: docId, values: vec.data[0], metadata: { docId 
 const hits = await env.VECTORIZE.query(vec.data[0], { topK: 5 });
 ```
 
-Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than calling providers directly. Verify model IDs against the docs MCP — they change; never trust memory.
+Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than calling providers directly. Verify model IDs against the docs MCP — they change; never trust memory. Python Workers run `openai`/`langchain`/`mcp` natively; use `langchain-cloudflare` for Workers AI.
 
 ## Common Mistakes
 
