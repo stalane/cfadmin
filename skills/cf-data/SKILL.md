@@ -38,6 +38,8 @@ Config sketch (`wrangler.jsonc`): `d1.databases`, `kv_namespaces`, `r2_buckets`,
 
 Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk). Python drivers (`asyncpg`/`aiomysql`) work over Hyperdrive's TCP sockets in Python Workers.
 
+Previews: same `id`/`database_id`/`bucket_name`/queue-name = shared data. Isolate by binding the Preview to a different resource (`previews.d1_databases` etc). Shared-staging pattern: base branch points `previews.d1_databases` at one staging DB and mirrors it in `wrangler.preview-migrations.jsonc` for `d1 migrations apply PREVIEW_DB --remote`; per-branch override hits both files.
+
 ## Common Mistakes
 
 - REST calls to Cloudflare APIs from inside the Worker instead of bindings.

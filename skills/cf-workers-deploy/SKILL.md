@@ -1,17 +1,17 @@
 ---
 name: cf-workers-deploy
-description: Use when creating, configuring, deploying, or debugging a Cloudflare Worker with wrangler — wrangler.jsonc, compatibility_date, nodejs_compat, environments, secrets, builds, observability, Pages deploys.
+description: Use when creating, configuring, deploying, or debugging a Cloudflare Worker with wrangler — wrangler.jsonc, compatibility_date, nodejs_compat, environments, secrets, builds, observability, Pages deploys, branch previews.
 ---
 
 # cf-workers-deploy (wrangler build/deploy/triage, Cloudflare-only)
 
 ## Overview
 
-Ship Workers via wrangler and triage via MCP. Retrieval-first: check docs MCP + `node_modules/wrangler/config-schema.json` before citing flags or config fields.
+Ship via wrangler, triage via MCP. Retrieval-first: check docs MCP + config schema before citing flags/fields.
 
 ## When to Use
 
-- New Worker, Pages project, environment (staging/production), secret, deploy, build failure, live error.
+- New Worker, Pages project, environment (staging/production), secret, deploy, build failure, live error, branch/PR preview.
 - When NOT: data-model or realtime-design questions — use `cf-data` / `cf-realtime`.
 
 ## Implementation
@@ -28,11 +28,21 @@ Prefer `wrangler.jsonc` (newer features are JSON-only). Minimal config:
 }
 ```
 
-Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) → `wrangler deploy`. Secrets: `wrangler secret put NAME` (never in config/source). Pages production: always `--branch main`. Startup check: `wrangler check startup`. CI: `wrangler-action` with the API token in GitHub Secrets (never in workflow YAML), deploying from `main`. Audit gate (runs before the first upload of every new project to Cloudflare, no exceptions): run a `security-audit` pass (quick profile; full findings in `~/security-audit-skill/<repo>/run-N/`) BEFORE `wrangler deploy`/Pages upload. Fix confirmed High/Critical (or record explicit acceptance) before shipping; re-run after auth, data-model, or storage changes. For existing projects, offer the same pass pre-deploy — offer, don't mandate: it runs parallel hunter/verifier subagents and is token-heavy by design (install: `npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global`). Abuse gate (runs before every deploy, no exceptions): if any route triggers paid/external-cost work (model inference, paid APIs, per-row-billed writes), refuse the deploy until a bot check (Turnstile siteverify or equivalent) is wired and verified live (tokenless POST → 403, real-browser flow → 200). Content-only deploys with no paid routes are exempt.
+Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) → `wrangler deploy`. Secrets via `wrangler secret put` (never in config). Pages production: `--branch main`. CI: `wrangler-action`, token in GitHub Secrets. Audit gate (first upload, no exceptions): `security-audit` quick pass BEFORE deploy; fix High/Critical first. Abuse gate (every deploy): paid/external-cost route → refuse until Turnstile siteverify verified live (tokenless POST → 403, browser flow → 200).
 
-Triage: failed builds → `cloudflare-builds` MCP (list by worker ID, get build + logs by UUID). Live errors → `cloudflare-observability` MCP (confirm keys via keys/values endpoints before filtering; `$metadata.service`, `$metadata.message`, `$metadata.error` first).
+Triage: builds → `cloudflare-builds` MCP; live errors → `cloudflare-observability` MCP (`$metadata.service/message/error` first).
 
-Python Workers are GA (first-class, no JS glue): FastAPI/Django/Flask via `workers.asgi`/`wsgi` — patterns in `cloudflare/python-workers-examples`.
+Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi`.
+
+## Previews (branch/PR isolation, Wrangler 4.135+)
+
+`npx wrangler preview` creates/updates the branch Preview under the same Worker; `deploy` stays production. Top-level = production, `previews` block = Preview settings (never inherits). Preview URL = latest, Deployment URL = pinned. Protect with Access; PR URLs via Workers Builds; delete via `preview delete --name`.
+
+```jsonc
+{ "vars": { "ENVIRONMENT": "production" }, "previews": { "vars": { "ENVIRONMENT": "preview" } } }
+```
+
+DO/Containers auto-isolate (`ctx.exports` + empty `previews{}`; redeclare `env` bindings under `previews`). KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`. Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`. Limits: 100 (free)/500 (paid) Previews, 100 deploys each, oldest auto-deleted. Version URLs use prod resources (not for branches); `preview --env staging` nests under `env.staging`.
 
 ## Quick Reference
 
@@ -41,16 +51,19 @@ Python Workers are GA (first-class, no JS glue): FastAPI/Django/Flask via `worke
 | Local dev | `wrangler dev` |
 | Type generation | `wrangler types` |
 | Deploy | `wrangler deploy` |
+| Preview branch | `wrangler preview [--name X] [--env staging]` |
+| Delete preview | `wrangler preview delete --name X` |
 | Tail logs | `wrangler tail` |
 | Secret | `wrangler secret put NAME` |
 
 ## Common Mistakes
 
 - TOML config for JSON-only features; stale `compatibility_date`; missing `nodejs_compat`.
-- `compatibility_date` newer than the bundled workerd's max makes `wrangler dev` fail to start — pin it at or below what the local runtime supports.
+- `compatibility_date` newer than bundled workerd breaks `dev` — pin at/below runtime max.
 - Hand-written `Env` instead of `wrangler types`; secrets in source.
 - Trusting first API page (paginate via `result_info.total_pages`); using default-account MCP OAuth for other accounts (wire each account's own auth).
+- Preview without redeclaring `env.*` bindings under `previews` → 1101; Preview pointed at prod D1/KV/R2.
 
 ## Reuses
 
-`wrangler`, `workers-best-practices`, `cloudflare` (`workers/`, `pages/`, `observability/` refs), `cloudflare-builds`, `cloudflare-observability`, `cloudflare/ci` (emerging Cloudflare-native CI alternative to wrangler-action).
+`wrangler`, `workers-best-practices`, `cloudflare` (`workers/`, `pages/`, `observability/` refs), `cloudflare-builds`, `cloudflare-observability`.

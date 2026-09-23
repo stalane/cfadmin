@@ -23,6 +23,8 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
 - **Schedules** → Cron Triggers in `wrangler.jsonc` (`crons: ["*/5 * * * *"]`), not a daemon.
 
+Previews: DO auto-isolates per Preview (`ctx.exports` + empty `previews{}`; redeclare `env` bindings under `previews`). Containers auto-isolate but declare in both top-level and `previews.containers`; after `preview delete`, check `containers list` and delete leftover Preview apps. Workflows bind existing code (deploy a dedicated non-prod Workflow first); service bindings call prod; queue consumers/cron/routes never target Previews — put scheduled/queue work behind a test route.
+
 ```ts
 export class Room implements DurableObject {
   constructor(private state: DurableObjectState, private env: Env) {}
