@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudflare Admin ⚡</title>
+<meta name="description" content="Your OpenCode agent that only speaks Cloudflare. No VPS, no Docker, no self-hosted databases.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<style>
+:root {
+  --bg: #000;
+  --card: #121a28;
+  --border: #1e2a3a;
+  --text: #e6ecf5;
+  --muted: #8aa0bd;
+  --blue: #4f9cf7;
+  --green: #2ecc8f;
+  --red: #ff5a5f;
+  --gold: #f7b32b;
+  --violet: #a78bfa;
+  --radius: 14px;
+  --glow: 0 0 24px rgba(79, 156, 247, 0.12);
+  --mono: 'DejaVu Sans Mono', 'SFMono-Regular', Consolas, monospace;
+  --sans: 'DejaVu Sans', 'Liberation Sans', sans-serif;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); margin: 0; padding: 24px; }
+.wrap { max-width: 1280px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+header h1 { margin: 0; font-size: 30px; color: #fff; }
+header h1 .bolt { color: var(--gold); }
+header p.sub { color: var(--muted); margin: 8px 0 0; max-width: 640px; line-height: 1.5; }
+.status { display: flex; gap: 10px; align-items: center; }
+.pill { font-family: var(--mono); font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.pill.live { color: var(--green); border-color: var(--green); }
+.btn { font-family: var(--mono); font-size: 13px; color: #fff; background: rgba(79,156,247,0.15); border: 1px solid var(--blue); border-radius: 8px; padding: 8px 14px; text-decoration: none; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.kpi, .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--glow); }
+.kpi-label { text-transform: uppercase; font-size: 12px; letter-spacing: 0.6px; color: var(--muted); }
+.kpi-value { font-family: var(--mono); font-size: 28px; color: var(--text); margin-top: 6px; }
+.kpi-value .up { color: var(--green); }
+.kpi-delta { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.panel { min-height: 200px; }
+.panel.full { grid-column: 1 / -1; }
+.panel h2 { font-size: 16px; color: #fff; margin: 0 0 4px; }
+.panel .asof { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+.table-wrap table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+.table-wrap th, .table-wrap td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.table-wrap th { color: var(--muted); font-weight: 600; }
+.table-wrap td { color: var(--text); }
+td.refuse { color: var(--red); }
+td.build { color: var(--green); }
+pre { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; color: var(--text); position: relative; }
+pre .copy { position: absolute; top: 8px; right: 8px; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; font-size: 11px; padding: 3px 8px; cursor: pointer; font-family: var(--mono); }
+pre .copy:hover { color: #fff; border-color: var(--blue); }
+ul.tight { margin: 8px 0; padding-left: 20px; line-height: 1.7; font-size: 14px; }
+ul.tight li::marker { color: var(--blue); }
+code.inline { font-family: var(--mono); font-size: 12.5px; background: rgba(79,156,247,0.12); padding: 1px 6px; border-radius: 5px; }
+footer { margin-top: 24px; color: var(--muted); font-size: 12px; font-family: var(--mono); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+footer a { color: var(--blue); }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .kpis { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Cloudflare Admin <span class="bolt">⚡</span></h1>
+    <p class="sub"><strong>Your OpenCode agent that only speaks Cloudflare.</strong> No VPS, no Docker, no self-hosted databases — if it can&rsquo;t <code class="inline">wrangler deploy</code>, cfadmin won&rsquo;t build it that way. It refuses the wrong shape and hands you the Cloudflare-native design instead.</p>
+  </div>
+  <div class="status">
+    <span class="pill live">● LIVE via Tunnel</span>
+    <a class="btn" href="https://github.com/stalane/cfadmin">★ stalane/cfadmin</a>
+  </div>
+</header>
+
+<section class="kpis">
+  <div class="kpi"><div class="kpi-label">cf-* skills</div><div class="kpi-value">6</div><div class="kpi-delta">deploy · data · realtime · ai · frontdoor · aiready</div></div>
+  <div class="kpi"><div class="kpi-label">RED battery</div><div class="kpi-value"><span class="up">5/5 ▲</span></div><div class="kpi-delta">redirect, zero complies</div></div>
+  <div class="kpi"><div class="kpi-label">MCP servers</div><div class="kpi-value">5</div><div class="kpi-delta">workers · docs · bindings · builds · observability</div></div>
+  <div class="kpi"><div class="kpi-label">Deploy smoke test</div><div class="kpi-value"><span class="up">PASS ▲</span></div><div class="kpi-delta">dev → types → deploy → delete</div></div>
+</section>
+
+<div class="grid">
+
+<section class="panel">
+  <h2>🛠 Skill router</h2>
+  <div class="asof">one plane per skill · thin files, heavy reuse</div>
+  <div class="table-wrap"><table>
+    <tr><th>Skill</th><th>Plane</th></tr>
+    <tr><td>cf-workers-deploy</td><td>wrangler.jsonc · envs · secrets · CI · previews · triage</td></tr>
+    <tr><td>cf-data</td><td>D1 · KV · R2 · Hyperdrive · Queues</td></tr>
+    <tr><td>cf-realtime</td><td>DO · Workflows · Containers · Sandbox · Agents · Cron</td></tr>
+    <tr><td>cf-ai</td><td>Workers AI · Vectorize · AI Gateway</td></tr>
+    <tr><td>cf-frontdoor</td><td>DNS · Pages · Tunnel · WAF · Turnstile · Email</td></tr>
+    <tr><td>cf-aiready</td><td>sitemap · signals · markdown · catalog · links · auth.md</td></tr>
+  </table></div>
+</section>
+
+<section class="panel">
+  <h2>⛔ Hard rule: Cloudflare-only</h2>
+  <div class="asof">refuse the shape, redirect to the equivalent</div>
+  <div class="table-wrap"><table>
+    <tr><th>Asked for</th><th>Built instead</th></tr>
+    <tr><td class="refuse">VPS / Docker</td><td class="build">Workers / Containers</td></tr>
+    <tr><td class="refuse">Express server</td><td class="build">Worker + Static Assets</td></tr>
+    <tr><td class="refuse">Flask / FastAPI / Django</td><td class="build">Python Worker (GA)</td></tr>
+    <tr><td class="refuse">Postgres / MySQL</td><td class="build">D1 · Hyperdrive</td></tr>
+    <tr><td class="refuse">Redis</td><td class="build">KV · Durable Objects</td></tr>
+    <tr><td class="refuse">S3</td><td class="build">R2</td></tr>
+    <tr><td class="refuse">Cron daemon</td><td class="build">Cron Triggers</td></tr>
+    <tr><td class="refuse">Socket.io server</td><td class="build">Durable Objects</td></tr>
+    <tr><td class="refuse">GPU / pgvector RAG</td><td class="build">Workers AI · Vectorize</td></tr>
+  </table></div>
+</section>
+
+<section class="panel full">
+  <h2>🤖 AI-ready domains</h2>
+  <div class="asof">cf-aiready · six checks green on stalane.com · Free-plan zone, no paid features</div>
+  <div class="table-wrap"><table>
+    <tr><th>Check</th><th>Serves</th><th>Scan path</th></tr>
+    <tr><td>sitemap</td><td><code class="inline">sitemap.xml</code> + <code class="inline">Sitemap:</code> in robots.txt</td><td class="build">discoverability.sitemap</td></tr>
+    <tr><td>content signals</td><td><code class="inline">Content-Signal: ai-train / search / ai-input</code></td><td class="build">botAccessControl.contentSignals</td></tr>
+    <tr><td>markdown</td><td><code class="inline">Accept: text/markdown</code> → Markdown + <code class="inline">x-markdown-tokens</code></td><td class="build">contentAccessibility.markdownNegotiation</td></tr>
+    <tr><td>api catalog</td><td><code class="inline">/.well-known/api-catalog</code> as <code class="inline">linkset+json</code> (RFC 9727)</td><td class="build">discovery.apiCatalog</td></tr>
+    <tr><td>link headers</td><td><code class="inline">api-catalog · service-desc · service-doc · describedby</code></td><td class="build">discoverability.linkHeaders</td></tr>
+    <tr><td>auth.md</td><td><code class="inline">/auth.md</code> + OAuth PRM / AS metadata + <code class="inline">agent_auth</code></td><td class="build">discovery.authMd</td></tr>
+  </table></div>
+<pre><button class="copy" data-copy="b2">copy</button><code id="b2">curl -s -X POST https://isitagentready.com/api/scan \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'</code></pre>
+  <ul class="tight">
+    <li>Static docs at root + one Pages Function via <code class="inline">env.ASSETS</code> with exact <code class="inline">Content-Type</code>s — zone <code class="inline">content_converter</code> needs a paid plan (Free PATCH → <code class="inline">1015</code>), code wins anyway: versioned, locally testable.</li>
+    <li><strong>Gotchas banked:</strong> deploy Pages production with <code class="inline">--branch main</code>; scanner rejects <em>empty</em> <code class="inline">authorization_servers</code>/<code class="inline">scopes_supported</code>; anonymous <code class="inline">agent_auth</code> needs <code class="inline">claim_uri</code>; never advertise OAuth endpoints that don't implement the protocol.</li>
+    <li>Keep it updated: <code class="inline">index.md</code> ↔ <code class="inline">index.html</code>, catalog on API changes, sitemap <code class="inline">lastmod</code> on publish/remove.</li>
+  </ul>
+</section>
+
+<section class="panel full">
+  <h2>⬇ Install into your harness</h2>
+  <div class="asof">OpenCode · Node ≥ 20 · wrangler logged in</div>
+<pre><button class="copy" data-copy="b1">copy</button><code id="b1">cp agent/cfadmin.md ~/.config/opencode/agents/
+cp -r skills/* ~/.config/opencode/skills/</code></pre>
+  <ul class="tight">
+    <li>Merge <code class="inline">mcp.cloudflare.json</code> into your <code class="inline">opencode.jsonc</code>, complete OAuth on first use.</li>
+    <li>Restart OpenCode, verify with <code class="inline">opencode agent list</code> (expect <code class="inline">cfadmin</code>).</li>
+    <li>Recommended companion: Cloudflare&rsquo;s <code class="inline">security-audit-skill</code> as a pre-deploy gate.</li>
+  </ul>
+</section>
+
+<section class="panel full">
+  <h2>✔ Verification record</h2>
+  <div class="asof">measured, not claimed</div>
+  <ul class="tight">
+    <li><strong>RED battery 5/5 REDIRECT</strong> — every skill refused a hurried non-Cloudflare demand (Docker+Postgres, VPS+systemd, Flask+pgvector, nginx+certbot) and redirected to the native design.</li>
+    <li><strong>Deploy smoke test green</strong> — scratch Worker: <code class="inline">wrangler types</code> → <code class="inline">wrangler dev</code> → live deploy (both routes HTTP 200) → <code class="inline">wrangler delete</code>, account left clean.</li>
+    <li><strong>Install validated on a second host</strong> — README steps executed verbatim found and fixed the missing <code class="inline">mkdir -p</code>.</li>
+    <li><strong>Gotcha banked:</strong> <code class="inline">compatibility_date</code> newer than the bundled workerd breaks <code class="inline">wrangler dev</code> — pin at or below local runtime max.</li>
+    <li><strong>Abuse gate proven (smartass):</strong> Turnstile siteverify on all paid POSTs — tokenless POST → <code class="inline">403</code>, real-browser flow passes, demo stays public. The gate runs before every deploy with paid routes.</li>
+    <li><strong>Worker Previews covered:</strong> <code class="inline">wrangler preview</code> per-branch isolation (Wrangler 4.135+) — DO/Containers auto-isolate, KV/D1/R2 rebound per Preview, Workflows/consumers/cron stay on prod. Version URLs are prod-only, never for branches.</li>
+    <li><strong>Audit gate proven (smartass):</strong> first full <code class="inline">security-audit</code> run — 3 confirmed, 3 needs-validation, 1 correctly rejected. New projects get audited before their first upload.</li></li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <span>cfadmin.stalane.com · served from Cloudflare Pages</span>
+  <span><a href="https://github.com/stalane/cfadmin">github.com/stalane/cfadmin</a> · MIT · no account data on this page</span>
+</footer>
+
+</div>
+<script>
+document.querySelectorAll('button.copy').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = document.getElementById(b.getAttribute('data-copy')).innerText;
+    navigator.clipboard.writeText(t).then(function () { b.innerText = 'copied'; });
+  });
+});
+</script>
+</body>
+</html>
