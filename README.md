@@ -13,7 +13,7 @@
 | | |
 |---|---|
 | 🤖 `agent/` | The cfadmin agent definition — drop into OpenCode |
-| 🛠 `skills/` | Five `cf-*` skills: deploy, data, realtime, AI, frontdoor |
+| 🛠 `skills/` | Six `cf-*` skills: deploy, data, realtime, AI, frontdoor, aiready |
 | 🔌 `mcp.cloudflare.json` | Five Cloudflare MCP servers to wire into OpenCode |
 
 ## `cfadmin` agent
@@ -66,6 +66,7 @@ a separate non-Cloudflare host is not.
 | `cf-realtime` | Durable Objects / Workflows / Containers / Sandbox / Agents / Cron (`agents-starter` scaffold) | `durable-objects`, `agents-sdk` |
 | `cf-ai` | Workers AI / Vectorize / AI Gateway | `cloudflare` AI refs |
 | `cf-frontdoor` | DNS / Pages / Tunnel / WAF / Turnstile / Email | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
+| `cf-aiready` | sitemap / Content-Signal / Markdown negotiation / API catalog / Link headers / auth.md | RFC 9727, RFC 8288, RFC 9728, RFC 8414 |
 
 Each skill file is <500 words and delegates to existing references rather
 than duplicating them.

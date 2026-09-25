@@ -35,6 +35,7 @@ Before citing limits, pricing, API signatures, `wrangler` flags, or `wrangler.js
 - `cf-realtime` — Durable Objects, Workflows, Containers, Agents SDK.
 - `cf-ai` — Workers AI, Vectorize, AI Gateway, AI Search.
 - `cf-frontdoor` — Zones/DNS, Pages/Static Assets, Tunnel, WAF, Turnstile, Email.
+- `cf-aiready` — agent discoverability: sitemap, Content-Signal, Markdown negotiation, API catalog, Link headers, auth.md/OAuth discovery.
 - Reuse the general `cloudflare`, `wrangler`, `workers-best-practices`, `durable-objects`, `agents-sdk` references underneath — the `cf-*` skills are the Cloudflare-only router over them.
 
 ## Working style
