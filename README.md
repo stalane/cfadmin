@@ -15,7 +15,6 @@
 | 🤖 `agent/` | The cfadmin agent definition — drop into OpenCode |
 | 🛠 `skills/` | Six `cf-*` skills: deploy, data, realtime, AI, frontdoor, aiready |
 | 🔌 `mcp.cloudflare.json` | Five Cloudflare MCP servers to wire into OpenCode |
-| 🌐 `website/` | Public site source (cfadmin.stalane.com) — edit here, deploy via Pages |
 
 ## `cfadmin` agent
 
