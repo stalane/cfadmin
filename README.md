@@ -73,7 +73,7 @@ a separate non-Cloudflare host is not.
 | `cf-data` | D1 / KV / R2 / Hyperdrive / Queues choice + recipes | `cloudflare` data refs |
 | `cf-realtime` | Durable Objects / Workflows / Containers / Sandbox / Agents / Cron (`agents-starter` scaffold) | `durable-objects`, `agents-sdk` |
 | `cf-ai` | Workers AI / Vectorize / AI Gateway | `cloudflare` AI refs |
-| `cf-frontdoor` | DNS / Pages / Tunnel / WAF / Turnstile / Email | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
+| `cf-frontdoor` | DNS / Pages / Tunnel / WAF / Turnstile / Email / Kitesurf verify | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
 | `cf-aiready` | sitemap / Content-Signal / Markdown negotiation / API catalog / Link headers / auth.md | RFC 9727, RFC 8288, RFC 9728, RFC 8414 |
 
 Each skill file is <500 words and delegates to existing references rather

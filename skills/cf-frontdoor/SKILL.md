@@ -1,6 +1,6 @@
 ---
 name: cf-frontdoor
-description: Use when exposing, routing, or protecting a Cloudflare project — Zones and DNS, Pages and Static Assets, Tunnels with cloudflared, WAF, Turnstile, Email Routing and Email Workers.
+description: Use when exposing, routing, or protecting a Cloudflare project — Zones and DNS, Pages and Static Assets, Tunnels with cloudflared, WAF, Turnstile, Email Routing and Email Workers — or verifying a public URL with Kitesurf/Browser Run screenshots and content extraction.
 ---
 
 # cf-frontdoor (DNS/Pages/Tunnel/WAF/Turnstile/Email, Cloudflare-only)
@@ -11,7 +11,7 @@ Every public URL terminates on Cloudflare: DNS → (WAF/Turnstile) → Pages/Wor
 
 ## When to Use
 
-- Custom domain, CNAME, Pages deploy, Next.js deploy (Vinext), local-service exposure, bot protection, contact forms, inbound email.
+- Custom domain, CNAME, Pages deploy, Next.js deploy (Vinext), local-service exposure, bot protection, contact forms, inbound email, visual/content verification of a live URL (screenshot, HTML, PDF).
 - When NOT: compute/storage/AI design (→ sibling `cf-*` skills).
 
 ## Implementation
@@ -26,6 +26,15 @@ Managed tunnel via `cf` (JSON default, no `cloudflared tunnel login` browser flo
 Local static origin: Caddy on loopback via systemd (`file_server` + `encode gzip`; TLS terminates at Cloudflare) — `python3 -m http.server` is dev-only. Tunnel itself as systemd unit (`Restart=always`, token in root-owned 600 env file); `bgstart` cloudflared only for throwaway tests.
 
 Static sites: Workers Static Assets, `cf deploy`, or `cf pages deploy --branch main` for production (wrangler fallback: `wrangler pages deploy --branch main`). Next.js apps: Vinext on Workers (see `cf-workers-deploy`), not Pages/OpenNext. Routes/custom domains via `triggers.fetch({ pattern })` in `cloudflare.config.ts`. Protection: WAF managed rules (`cf firewall …`, `cf rulesets …`) + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cf email-routing …`, `cf email-sending …`; `cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
+
+## Verify live URLs with Kitesurf (Browser Run)
+
+Kitesurf is Cloudflare's agent-first browser: runs entirely on Workers (no special privileges, scales per task), stateless/ephemeral, 3–7× less CPU/memory than Chromium for screenshots/HTML extraction at ~1.7–1.8× wall time. Free while in beta behind per-account limits. Try rendering first in the playground (`kitesurf.dev`) or terminal (`brew install cloudflare/cloudflare/kitesurf`).
+
+- One-shot checks: `cf browser-run quick-action screenshot` (also HTML/PDF/content actions; `browser=kitesurf` opts in — see command `--help` for the exact flag). From inside a Worker: `env.BROWSER.quickAction("screenshot", { url, browser: "kitesurf" })`.
+- Automation: CDP endpoint (`.../browser-run/devtools/browser?browser=kitesurf`) with Playwright/Puppeteer/chrome-remote-interface, or MCP (`chrome-devtools-mcp` + `--category-experimental-webmcp` for WebMCP tool discovery on WebMCP-enabled sites).
+- Use for: post-deploy visual check (does the page render, do charts paint), content extraction, PDF capture. Prefer over headless-Chrome screenshots when the target blocks datacenter fingerprints or you need cheap bursty checks.
+- NOT for: video/WebGL, bot-challenge handshakes needing real TLS fingerprints, long-lived authenticated stateful sessions — use Browser Run's default Chromium there.
 
 ## Common Mistakes
 

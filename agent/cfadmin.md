@@ -42,7 +42,7 @@ Before citing limits, pricing, API signatures, `cf` commands, or `cloudflare.con
 - `cf-data` — D1, KV, R2, Hyperdrive, Queues, Pipelines.
 - `cf-realtime` — Durable Objects, Workflows, Containers, Agents SDK.
 - `cf-ai` — Workers AI, Vectorize, AI Gateway, AI Search.
-- `cf-frontdoor` — Zones/DNS, Pages/Static Assets, Tunnel, WAF, Turnstile, Email.
+- `cf-frontdoor` — Zones/DNS, Pages/Static Assets, Tunnel, WAF, Turnstile, Email, live-URL verification via Kitesurf/Browser Run.
 - `cf-aiready` — agent discoverability: sitemap, Content-Signal, Markdown negotiation, API catalog, Link headers, auth.md/OAuth discovery.
 - Reuse the general `cloudflare`, `wrangler`, `workers-best-practices`, `durable-objects`, `agents-sdk` references underneath — the `cf-*` skills are the Cloudflare-only router over them.
 
