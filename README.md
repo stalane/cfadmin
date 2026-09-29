@@ -48,6 +48,7 @@ a separate non-Cloudflare host is not.
 | Self-hosted S3 | R2 |
 | Cron daemon | Cron Triggers |
 | WebSocket server | Durable Objects |
+| WordPress / CMS / editor-managed site | EmDash 1.0 on Workers (`npm create emdash@latest`, Astro SSR) |
 | Next.js (App/Pages/Hybrid) | Vinext on Workers (`npx vinext check && npx vinext init`, `npx @vinext/cloudflare deploy`) |
 | Plain Vite / static | Workers Static Assets or Pages |
 | Self-hosted GPU / pgvector RAG | Workers AI + Vectorize + AI Gateway |

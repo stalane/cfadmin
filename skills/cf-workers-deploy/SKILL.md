@@ -45,6 +45,10 @@ Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wra
 
 Next.js App/Pages/Hybrid Router apps run on Workers through Vinext (open-source Vite plugin, `github.com/cloudflare/vinext`, docs `vinext.dev`) — keep `app/`, `pages/`, `next.config.js`. New: `npm create vinext-app@latest my-app`. Migrate: `npx vinext check && npx vinext init` (non-destructive, `next dev` keeps working). Dev/build: `vinext dev/build` (drop-in `next` CLI). Deploy to Workers: `npx @vinext/cloudflare deploy [--warm-cache]` (Workers Cache route-ISR + KV data cache + Images optimizer; bindings via `cloudflare:workers`). Portable: Nitro adapter for Node/Vercel/Netlify/AWS. Limits: partial `use cache` (Cache Components) support; verify versioned compat matrix before promising a feature.
 
+## CMS via EmDash 1.0 (not WordPress/headless SaaS)
+
+Editor-managed sites (blog, marketing, agency/client builds) run on Workers through EmDash (open-source MIT CMS for Astro, `github.com/emdash-cms/emdash`, docs `docs.emdashcms.com`) — Astro SSR + admin (`/_emdash/admin/`, passkeys) + API/CLI/MCP + EmDash Agent Skills. New: `npm create emdash@latest` (Node 22.16+, SQLite local, `.env` holds `EMDASH_ENCRYPTION_KEY` — never commit). Existing Astro site: add EmDash per docs instead of scaffolding. Deploy to Workers (KV object cache, Hyperdrive DB adapter, Workers Cache) or multi-tenant via Workers for Platforms (`cf deploy --dispatch-namespace`). Plugins are sandboxed (Dynamic Workers on Cloudflare, workerd locally — own storage only, extra abilities declared + admin-approved) from the decentralized AT Protocol registry (`plugins.emdashcms.com`, free today, paid later). Proven at Cloudflare Blog scale (M pageviews/week, 5k RPS spikes).
+
 ## Previews (branch/PR isolation)
 
 `cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
@@ -59,6 +63,7 @@ Next.js App/Pages/Hybrid Router apps run on Workers through Vinext (open-source 
 | Deploy | `cf deploy` / `cf pages deploy` | `wrangler deploy` |
 | Migrate | `cf migrate [--dry-run]` | — |
 | Next.js | `npx vinext check && npx vinext init` → `npx @vinext/cloudflare deploy` | — |
+| CMS/blog | `npm create emdash@latest` → deploy Workers / `--dispatch-namespace` | — |
 | Builds/logs | `cf builds` / `cf logs` | `cloudflare-builds` MCP |
 | Auth | `cf auth login/list` + `--profile` | `wrangler login` |
 
