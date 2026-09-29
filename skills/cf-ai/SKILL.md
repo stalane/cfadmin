@@ -27,6 +27,8 @@ const hits = await env.VECTORIZE.query(vec.data[0], { topK: 5 });
 
 Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than calling providers directly. Verify model IDs against the docs MCP — they change; never trust memory. Python Workers run `openai`/`langchain`/`mcp` natively; use `langchain-cloudflare` for Workers AI.
 
+Manage via `cf`: `cf ai …`, `cf ai-gateway …`, `cf ai-search …` (JSON default, discover with `cf cli search`). Wire in config via `bindings.ai()` / `bindings.vectorize({ name })`.
+
 ## Common Mistakes
 
 - Calling OpenAI/Anthropic from a VPS backend instead of from the Worker through AI Gateway.

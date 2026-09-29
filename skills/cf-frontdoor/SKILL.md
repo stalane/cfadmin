@@ -16,16 +16,16 @@ Every public URL terminates on Cloudflare: DNS → (WAF/Turnstile) → Pages/Wor
 
 ## Implementation
 
-Managed tunnel (note: create-body `config` is NOT persisted — always PUT configurations):
+Managed tunnel via `cf` (JSON default, no `cloudflared tunnel login` browser flow):
 
-1. `POST /accounts/{ACCT}/cfd_tunnel` `{"name":"myapp"}`
-2. `PUT /accounts/{ACCT}/cfd_tunnel/{TUNNEL}/configurations` with `ingress: [{hostname, service: http://localhost:PORT}, {service: "http_status:404"}]`
-3. `POST /zones/{ZONE}/dns_records` CNAME `app → {TUNNEL}.cfargotunnel.com` (proxied)
-4. `GET .../cfd_tunnel/{TUNNEL}/token` → run `cloudflared` with the token; verify with `curl`.
+1. `cf tunnels create --name myapp` (≡ `POST /accounts/{ACCT}/cfd_tunnel`)
+2. PUT ingress configurations (create-body `config` is NOT persisted — always PUT)
+3. `cf dns …` CNAME `app → {TUNNEL}.cfargotunnel.com` (proxied)
+4. Fetch tunnel token → run `cloudflared` with the token; verify with `curl`.
 
-Local static origin (tunnel): serve with Caddy on loopback via systemd (`file_server` + `encode gzip`; TLS terminates at Cloudflare) — `python3 -m http.server` is dev-only, never the tunnel origin. Run the tunnel itself as a systemd unit (`Restart=always`, token in a root-owned 600 env file like `/etc/cloudflared/<name>.env`); `bgstart` cloudflared only for throwaway tests. House pattern: treasury/cfadmin site blocks.
+Local static origin: Caddy on loopback via systemd (`file_server` + `encode gzip`; TLS terminates at Cloudflare) — `python3 -m http.server` is dev-only. Tunnel itself as systemd unit (`Restart=always`, token in root-owned 600 env file); `bgstart` cloudflared only for throwaway tests.
 
-Static sites: Workers Static Assets or `wrangler pages deploy --branch main` for production. Protection: WAF managed rules + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
+Static sites: Workers Static Assets, `cf deploy`, or `cf pages deploy --branch main` for production (wrangler fallback: `wrangler pages deploy --branch main`). Routes/custom domains via `triggers.fetch({ pattern })` in `cloudflare.config.ts`. Protection: WAF managed rules (`cf firewall …`, `cf rulesets …`) + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cf email-routing …`, `cf email-sending …`; `cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
 
 ## Common Mistakes
 

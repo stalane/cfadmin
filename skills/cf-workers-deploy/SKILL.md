@@ -1,68 +1,69 @@
 ---
 name: cf-workers-deploy
-description: Use when creating, configuring, deploying, or debugging a Cloudflare Worker with wrangler — wrangler.jsonc, compatibility_date, nodejs_compat, environments, secrets, builds, observability, Pages deploys, branch previews.
+description: Use when creating, configuring, deploying, or debugging a Cloudflare Worker with cf CLI — cloudflare.config.ts, bindings/triggers helpers, cf init/dev/deploy/migrate, Vite builds, secrets, previews, Pages deploys.
 ---
 
-# cf-workers-deploy (wrangler build/deploy/triage, Cloudflare-only)
+# cf-workers-deploy (cf CLI build/deploy/triage, Cloudflare-only)
 
 ## Overview
 
-Ship via wrangler, triage via MCP. Retrieval-first: check docs MCP + config schema before citing flags/fields.
+Ship via `cf`, triage via MCP. `cf` (open beta, `npm i -g cf`) covers the whole API as JSON; `cloudflare.config.ts` replaces `wrangler.jsonc` for Vite Workers. Retrieval-first: `cf cli search` + `cf schema` + docs MCP before citing flags/fields.
 
 ## When to Use
 
-- New Worker, Pages project, environment (staging/production), secret, deploy, build failure, live error, branch/PR preview.
+- New Worker, Pages project, environment (mode staging/production), secret, deploy, build failure, live error, branch/PR preview, Wrangler→cf migration.
 - When NOT: data-model or realtime-design questions — use `cf-data` / `cf-realtime`.
 
 ## Implementation
 
-Prefer `wrangler.jsonc` (newer features are JSON-only). Minimal config:
+Programmatic TypeScript config (`cloudflare.config.ts`) — LSP-autocompleted, `mode`-switched envs instead of copied `env` blocks:
 
-```jsonc
-{
-  "name": "my-worker",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-09-18",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": { "enabled": true }
-}
+```ts
+import { bindings, defineConfig, triggers } from "cf/config";
+import * as entrypoint from "./index.js" with { type: "cf-worker" };
+export default defineConfig(({ mode }) => ({
+  worker: {
+    name: "my-worker", entrypoint, compatibilityDate: "2026-09-27",
+    env: {
+      ENVIRONMENT: bindings.text(mode),
+      API_TOKEN: bindings.secret(),
+      DB: bindings.d1({ name: `mydb-${mode}` }),
+      CACHE: bindings.kv({ id: mode === "production" ? "prod-id" : "stage-id" }),
+    },
+    triggers: [triggers.fetch({ pattern: "example.com/*" }), triggers.scheduled({ schedule: "0 * * * *" })],
+  },
+}));
 ```
 
-Flow: `wrangler dev` → `wrangler types` (generates `Env`, never hand-write) → `wrangler deploy`. Secrets via `wrangler secret put` (never in config). Pages production: `--branch main`. CI: `wrangler-action`, token in GitHub Secrets. Audit gate (first upload, no exceptions): `security-audit` quick pass BEFORE deploy; fix High/Critical first. Abuse gate (every deploy): paid/external-cost route → refuse until Turnstile siteverify verified live (tokenless POST → 403, browser flow → 200).
+Flow: `cf init` (new/Vite setup) → `cf dev` → `cf deploy` (static sites: `cf deploy` with no config; Pages: `cf pages deploy`). Migrate: `cf migrate [--dry-run]` (Vite Workers convert to config.ts; esbuild/Rust/Python keep delegating to Wrangler during beta). Secrets via secret bindings / `cf deploy --secrets-file` (never in config). Pages production: `--branch main`. CI: token in GitHub Secrets. Audit gate (first upload): `security-audit` quick pass BEFORE deploy; fix High/Critical first. Abuse gate (every deploy): paid/external-cost route → refuse until Turnstile siteverify verified live (tokenless POST → 403, browser flow → 200).
 
-Triage: builds → `cloudflare-builds` MCP; live errors → `cloudflare-observability` MCP (`$metadata.service/message/error` first).
+Triage: builds → `cloudflare-builds` MCP (`cf builds`); live errors → `cloudflare-observability` MCP (`cf observability`/`cf logs`, `$metadata.service/message/error` first).
 
-Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi`.
+Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wrangler delegation).
 
-## Previews (branch/PR isolation, Wrangler 4.135+)
+## Previews (branch/PR isolation)
 
-`npx wrangler preview` creates/updates the branch Preview under the same Worker; `deploy` stays production. Top-level = production, `previews` block = Preview settings (never inherits). Preview URL = latest, Deployment URL = pinned. Protect with Access; PR URLs via Workers Builds; delete via `preview delete --name`.
-
-```jsonc
-{ "vars": { "ENVIRONMENT": "production" }, "previews": { "vars": { "ENVIRONMENT": "preview" } } }
-```
-
-DO/Containers auto-isolate (`ctx.exports` + empty `previews{}`; redeclare `env` bindings under `previews`). KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`. Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`. Limits: 100 (free)/500 (paid) Previews, 100 deploys each, oldest auto-deleted. Version URLs use prod resources (not for branches); `preview --env staging` nests under `env.staging`.
+`cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
 
 ## Quick Reference
 
-| Task | Command |
-|---|---|
-| Local dev | `wrangler dev` |
-| Type generation | `wrangler types` |
-| Deploy | `wrangler deploy` |
-| Preview branch | `wrangler preview [--name X] [--env staging]` |
-| Delete preview | `wrangler preview delete --name X` |
-| Tail logs | `wrangler tail` |
-| Secret | `wrangler secret put NAME` |
+| Task | cf (default) | Wrangler fallback (beta) |
+|---|---|---|
+| Discover API op | `cf cli search "<action + resource>"` → `cf schema <cmd>` | docs MCP |
+| Scaffold | `cf init [dir]` | `npm create cloudflare@latest` |
+| Local dev | `cf dev [--mode production]` | `wrangler dev` |
+| Deploy | `cf deploy` / `cf pages deploy` | `wrangler deploy` |
+| Migrate | `cf migrate [--dry-run]` | — |
+| Builds/logs | `cf builds` / `cf logs` | `cloudflare-builds` MCP |
+| Auth | `cf auth login/list` + `--profile` | `wrangler login` |
 
 ## Common Mistakes
 
-- TOML config for JSON-only features; stale `compatibility_date`; missing `nodejs_compat`.
-- `compatibility_date` newer than bundled workerd breaks `dev` — pin at/below runtime max.
-- Hand-written `Env` instead of `wrangler types`; secrets in source.
-- Trusting first API page (paginate via `result_info.total_pages`); using default-account MCP OAuth for other accounts (wire each account's own auth).
-- Preview without redeclaring `env.*` bindings under `previews` → 1101; Preview pointed at prod D1/KV/R2.
+- Chaining nested `--help` across 3,000 commands instead of `cf cli search` first; putting names/IDs/domains in search queries (keep them anonymous).
+- `wrangler.jsonc`/TOML for new Vite features; stale `compatibilityDate`; secrets in source.
+- `compatibilityDate` newer than bundled workerd breaks `dev` — pin at/below runtime max.
+- Trusting first API page (paginate via `result_info.total_pages`); using default-account MCP OAuth for other accounts (use `cf --profile` / per-account auth).
+- Preview pointed at prod D1/KV/R2 (rebind per Preview).
 
 ## Reuses
 

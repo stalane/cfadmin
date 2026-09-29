@@ -21,7 +21,8 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 - **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern). Replaces Docker-on-VPS. For running untrusted code (AI runners, judges, eval harnesses) prefer `sandbox-sdk` over Containers.
 - **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern); scaffold new ones from `agents-starter`.
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
-- **Schedules** → Cron Triggers in `wrangler.jsonc` (`crons: ["*/5 * * * *"]`), not a daemon.
+- **Schedules** → Cron via `triggers.scheduled({ schedule })` in `cloudflare.config.ts`, not a daemon.
+- Manage via `cf`: `cf durable-objects …`, `cf workflows …`, `cf containers …`, `cf queues …` (JSON default). Discover with `cf cli search`.
 
 Previews: DO auto-isolates per Preview (`ctx.exports` + empty `previews{}`; redeclare `env` bindings under `previews`). Containers auto-isolate but declare in both top-level and `previews.containers`; after `preview delete`, check `containers list` and delete leftover Preview apps. Workflows bind existing code (deploy a dedicated non-prod Workflow first); service bindings call prod; queue consumers/cron/routes never target Previews — put scheduled/queue work behind a test route.
 

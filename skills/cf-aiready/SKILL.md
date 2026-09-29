@@ -53,7 +53,7 @@ return context.next();
 
 Homepage `Link` headers: pass through with `context.next()`, then append discovery links to a cloned `Headers` (preserves static `_headers`). Markdown branch: set `Link` explicitly since Function responses bypass `_headers`. Answer HEAD on well-known endpoints (RFC 9727 §2 requires a `Link` header on HEAD).
 
-Verify locally before deploying: `wrangler pages dev` + curl matrix (markdown accept, browser accept, HEAD, non-page passthrough, byte-identical HTML body). Deploy production with `wrangler pages deploy . --project-name=<p> --branch main` (missing `--branch main` silently ships a preview). Then scan:
+Verify locally before deploying: `cf dev` (or `wrangler pages dev` fallback) + curl matrix (markdown accept, browser accept, HEAD, non-page passthrough, byte-identical HTML body). Deploy production with `cf pages deploy` / `cf deploy --branch main` (missing `--branch main` silently ships a preview; wrangler fallback: `wrangler pages deploy . --project-name=<p> --branch main`). Then scan:
 
 ```
 POST https://isitagentready.com/api/scan  {"url": "https://example.com"}

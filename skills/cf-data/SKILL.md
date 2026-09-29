@@ -34,7 +34,9 @@ digraph choice {
 }
 ```
 
-Config sketch (`wrangler.jsonc`): `d1.databases`, `kv_namespaces`, `r2_buckets`, `hyperdrive`, `queues.producers/consumers`. Then `wrangler types`. Access via `env.DB/KV/R2` in-process. Queues for async/background work off the critical path; Pipelines for streaming ETL to R2.
+Config (`cloudflare.config.ts`, `bindings.*` — LSP-autocompleted): `bindings.d1/kv/r2/queue` (e.g. `DB: bindings.d1({ name: `mydb-${mode}` })`). Access via `env.DB/KV/R2` in-process. Queues for async/background work off the critical path; Pipelines for streaming ETL to R2.
+
+Manage via `cf` (JSON default, `-q` for agents): `cf d1 list/get`, `cf d1 migrations create/apply`, `cf kv namespaces create/get`, `cf r2 …`, `cf queues …`, `cf pipelines …`. Discover with `cf cli search "<action + resource>"`, details via `cf schema <cmd...>`. Wrangler equivalents (`wrangler d1 …`) remain as beta fallback.
 
 Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk). Python drivers (`asyncpg`/`aiomysql`) work over Hyperdrive's TCP sockets in Python Workers.
 
@@ -45,7 +47,8 @@ Previews: same `id`/`database_id`/`bucket_name`/queue-name = shared data. Isolat
 - REST calls to Cloudflare APIs from inside the Worker instead of bindings.
 - `await response.text()` on unbounded bodies — stream large payloads.
 - KV for relational queries; D1 for blob storage; R2 for per-request counters.
-- Forgetting `wrangler types` after adding a binding.
+- Forgetting to update `cloudflare.config.ts` bindings after adding a store (LSP should autocomplete `bindings.*`).
+- Reaching for `wrangler` resource commands before trying `cf cli search`.
 
 ## Quota discipline (free tier: 100k rows written, 5M rows read/day)
 
