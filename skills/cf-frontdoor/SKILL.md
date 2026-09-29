@@ -11,7 +11,7 @@ Every public URL terminates on Cloudflare: DNS → (WAF/Turnstile) → Pages/Wor
 
 ## When to Use
 
-- Custom domain, CNAME, Pages deploy, local-service exposure, bot protection, contact forms, inbound email.
+- Custom domain, CNAME, Pages deploy, Next.js deploy (Vinext), local-service exposure, bot protection, contact forms, inbound email.
 - When NOT: compute/storage/AI design (→ sibling `cf-*` skills).
 
 ## Implementation
@@ -25,7 +25,7 @@ Managed tunnel via `cf` (JSON default, no `cloudflared tunnel login` browser flo
 
 Local static origin: Caddy on loopback via systemd (`file_server` + `encode gzip`; TLS terminates at Cloudflare) — `python3 -m http.server` is dev-only. Tunnel itself as systemd unit (`Restart=always`, token in root-owned 600 env file); `bgstart` cloudflared only for throwaway tests.
 
-Static sites: Workers Static Assets, `cf deploy`, or `cf pages deploy --branch main` for production (wrangler fallback: `wrangler pages deploy --branch main`). Routes/custom domains via `triggers.fetch({ pattern })` in `cloudflare.config.ts`. Protection: WAF managed rules (`cf firewall …`, `cf rulesets …`) + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cf email-routing …`, `cf email-sending …`; `cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
+Static sites: Workers Static Assets, `cf deploy`, or `cf pages deploy --branch main` for production (wrangler fallback: `wrangler pages deploy --branch main`). Next.js apps: Vinext on Workers (see `cf-workers-deploy`), not Pages/OpenNext. Routes/custom domains via `triggers.fetch({ pattern })` in `cloudflare.config.ts`. Protection: WAF managed rules (`cf firewall …`, `cf rulesets …`) + Turnstile widget with server-side `siteverify` in the Worker (see `turnstile-spin`; official `turnstile-demo-workers` example). Email: Email Routing + Email Workers (`cf email-routing …`, `cf email-sending …`; `cloud-mail`, `agentic-inbox` patterns); send via Email Sending binding.
 
 ## Common Mistakes
 

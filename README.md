@@ -48,7 +48,8 @@ a separate non-Cloudflare host is not.
 | Self-hosted S3 | R2 |
 | Cron daemon | Cron Triggers |
 | WebSocket server | Durable Objects |
-| Self-hosted Vite / Next | Workers Static Assets or Pages |
+| Next.js (App/Pages/Hybrid) | Vinext on Workers (`npx vinext check && npx vinext init`, `npx @vinext/cloudflare deploy`) |
+| Plain Vite / static | Workers Static Assets or Pages |
 | Self-hosted GPU / pgvector RAG | Workers AI + Vectorize + AI Gateway |
 | VPS nginx / certbot / manual DNS | Cloudflare DNS + Tunnel / Pages + WAF |
 

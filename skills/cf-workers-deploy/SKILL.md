@@ -11,7 +11,7 @@ Ship via `cf`, triage via MCP. `cf` (open beta, `npm i -g cf`) covers the whole 
 
 ## When to Use
 
-- New Worker, Pages project, environment (mode staging/production), secret, deploy, build failure, live error, branch/PR preview, Wrangler→cf migration.
+- New Worker, Pages project, Next.js app (Vinext), environment (mode staging/production), secret, deploy, build failure, live error, branch/PR preview, Wrangler→cf migration.
 - When NOT: data-model or realtime-design questions — use `cf-data` / `cf-realtime`.
 
 ## Implementation
@@ -41,6 +41,10 @@ Triage: builds → `cloudflare-builds` MCP (`cf builds`); live errors → `cloud
 
 Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wrangler delegation).
 
+## Next.js via Vinext 1.0 (not OpenNext/Pages)
+
+Next.js App/Pages/Hybrid Router apps run on Workers through Vinext (open-source Vite plugin, `github.com/cloudflare/vinext`, docs `vinext.dev`) — keep `app/`, `pages/`, `next.config.js`. New: `npm create vinext-app@latest my-app`. Migrate: `npx vinext check && npx vinext init` (non-destructive, `next dev` keeps working). Dev/build: `vinext dev/build` (drop-in `next` CLI). Deploy to Workers: `npx @vinext/cloudflare deploy [--warm-cache]` (Workers Cache route-ISR + KV data cache + Images optimizer; bindings via `cloudflare:workers`). Portable: Nitro adapter for Node/Vercel/Netlify/AWS. Limits: partial `use cache` (Cache Components) support; verify versioned compat matrix before promising a feature.
+
 ## Previews (branch/PR isolation)
 
 `cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
@@ -54,6 +58,7 @@ Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wra
 | Local dev | `cf dev [--mode production]` | `wrangler dev` |
 | Deploy | `cf deploy` / `cf pages deploy` | `wrangler deploy` |
 | Migrate | `cf migrate [--dry-run]` | — |
+| Next.js | `npx vinext check && npx vinext init` → `npx @vinext/cloudflare deploy` | — |
 | Builds/logs | `cf builds` / `cf logs` | `cloudflare-builds` MCP |
 | Auth | `cf auth login/list` + `--profile` | `wrangler login` |
 
