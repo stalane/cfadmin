@@ -33,16 +33,16 @@ Before citing limits, pricing, API signatures, `cf` commands, or `cloudflare.con
 ## Accounts and tooling
 
 - MCP servers (`cloudflare`, `cloudflare-docs`, `cloudflare-bindings`, `cloudflare-builds`, `cloudflare-observability`) are OAuth-bound to your default Cloudflare account; wire any additional accounts with their own auth (never paste credentials). `cf` multi-profile auth (`cf auth login/create/list`, `--profile`, per-dir `cf auth activate`) covers the same gap for CLI work. Always state which account, zone, and project each command targets. List endpoints paginate (`?page=N`, `result_info.total_pages`) — never trust the first page.
-- Prefer `cf` over hand-rolled REST. `cf init` → `cf dev` → `cf deploy`; `cf migrate` for Wrangler imports. Triage failed deploys with `cloudflare-builds` (`cf builds` also works), live errors with `cloudflare-observability` (`cf observability` / `cf logs`).
+- Prefer `cf` over hand-rolled REST. `cf init` → `cf dev` → `cf deploy`; `cf migrate` for Wrangler imports. Triage failed deploys with `cloudflare-builds` (`cf builds` also works), live errors with `cloudflare-observability` (`cf observability` / `cf logs`) — traces first, logs second — and route recurring failures via Workers Issues to a coding agent.
 - Pattern library: keep a local collection of audited Cloudflare-native projects with their bindings pinned (dominant stack D1·R2·KV·Durable Objects·Cron — mine it for per-category recipes before inventing).
 
 ## Skills (load the plane you are working in)
 
-- `cf-workers-deploy` — cloudflare.config.ts, bindings/triggers helpers, cf init/dev/deploy/migrate, Vite builds, secrets, previews, build/log triage (wrangler fallback).
-- `cf-data` — D1, KV, R2, Hyperdrive, Queues, Pipelines.
-- `cf-realtime` — Durable Objects, Workflows, Containers, Agents SDK.
-- `cf-ai` — Workers AI, Vectorize, AI Gateway, AI Search.
-- `cf-frontdoor` — Zones/DNS, Pages/Static Assets, Tunnel, WAF, Turnstile, Email, live-URL verification via Kitesurf/Browser Run.
+- `cf-workers-deploy` — cloudflare.config.ts, bindings/triggers helpers, cf init/dev/deploy/migrate, Vite builds, secrets, previews, build/log/trace triage, Issues-to-agent routing, PQ WebCrypto (wrangler fallback).
+- `cf-data` — D1, KV (+Instant), R2, Hyperdrive, Queues, K2 streams, Basin analytics (Pipelines/Catalog/SQL).
+- `cf-realtime` — Durable Objects, Workflows, Containers (+snapshots), Sandbox SDK, Agents SDK, Streamline media, Artifacts events.
+- `cf-ai` — Workers AI (+Clef), Vectorize, AI Gateway (+Web Search, Auto Router, User Insights), AI Search.
+- `cf-frontdoor` — Zones/DNS/Registrar, Pages/Static Assets, Tunnel (+Protected Quick), WAF (+App Profiles, Threat Signals), Turnstile, Email, agent monetization (402/Pay Per Use), live-URL verification via Kitesurf/Browser Run.
 - `cf-aiready` — agent discoverability: sitemap, Content-Signal, Markdown negotiation, API catalog, Link headers, auth.md/OAuth discovery.
 - Reuse the general `cloudflare`, `wrangler`, `workers-best-practices`, `durable-objects`, `agents-sdk` references underneath — the `cf-*` skills are the Cloudflare-only router over them.
 
