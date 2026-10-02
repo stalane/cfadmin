@@ -21,6 +21,7 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 - **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern), rebuilt for agent sandboxes: ~6× faster starts, per-sandbox image + instance type chosen at runtime from the controlling Durable Object, filesystem snapshots in public beta. Replaces Docker-on-VPS. For running untrusted code (AI runners, judges, eval harnesses) prefer `sandbox-sdk` (1.0: your own DO class drives each sandbox via `this.ctx.container`) over raw Containers.
 - **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern); scaffold new ones from `agents-starter`.
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
+- **Continuous media pipelines** (never-ending video ingest/transcode/delivery) → Streamline pattern: Workers + Durable Objects orchestrate a containerized media engine for long-running processing, rather than one-shot Workflows or external transcode boxes. Check the Streamline reference before designing custom video infra.
 - **Schedules** → Cron via `triggers.scheduled({ schedule })` in `cloudflare.config.ts`, not a daemon.
 - Manage via `cf`: `cf durable-objects …`, `cf workflows …`, `cf containers …`, `cf queues …` (JSON default). Discover with `cf cli search`.
 
