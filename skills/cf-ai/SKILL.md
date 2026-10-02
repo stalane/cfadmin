@@ -31,6 +31,10 @@ Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than
 
 When answers must reflect post-cutoff reality, ground the model with Web Search API instead of letting it guess URLs. Providers at launch: Ceramic.ai, Exa, Linkup (all Zero Data Retention through Cloudflare, verified-bot crawling standards; BYOK supported, otherwise billed to AI Gateway credits at list price). Two integration paths: dedicated search call from a Worker (`env.AI.websearch({ gatewayId, query, provider, limit })`) or REST (`POST /accounts/{id}/ai/websearch/`), both routed through your AI Gateway (logs + billing in one place); or pass-through of providers' native search tools (Anthropic/OpenAI/xAI/Alibaba flags) via the Gateway. Agentic pattern: expose it as a `web_search` tool — model calls the tool, Worker runs the search, results go back into context.
 
+## Spend control: Auto Router + User Insights (free for Gateway users)
+
+Default every gateway to cost-aware routing before hand-picking models. **Auto Router**: send requests with `cloudflare/auto` instead of a provider model — an edge classifier scores task type/difficulty vs cost, attempts the best-fit model, falls back on provider failure. Scope it with `cf-aig-allowed-models` / `cf-aig-allowed-providers` headers; read `cf-aig-routing-reason` to see why a model won. **User Insights**: groups live traffic by task, model, turn, and user; the Potential Savings view flags requests a cheaper model could have served (same signals the router uses); spend + anomaly views catch compromised keys and misbehaving agents. Attribute per-user spend via custom metadata or Access in front of the gateway.
+
 Manage via `cf`: `cf ai …`, `cf ai-gateway …`, `cf ai-search …` (JSON default, discover with `cf cli search`). Wire in config via `bindings.ai()` / `bindings.vectorize({ name })`.
 
 ## Common Mistakes
@@ -39,6 +43,7 @@ Manage via `cf`: `cf ai …`, `cf ai-gateway …`, `cf ai-search …` (JSON defa
 - Storing embeddings in D1/KV instead of Vectorize.
 - Hardcoding model names without checking current availability.
 - Skipping Gateway caching and paying per repeated prompt.
+- Hand-pinning an expensive flagship model for every call instead of `cloudflare/auto` + User Insights review.
 
 ## Reuses
 
