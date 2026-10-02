@@ -33,6 +33,10 @@ Static sites: Workers Static Assets, `cf deploy`, or `cf pages deploy --branch m
 
 Don't hand-write blocklists from blog posts. **Threat Signals** (Birthday Week 2026) opens the Threat Events Platform to every Cloudflare account: agentic skills parse open-source threat reporting into structured indicators and connect that context directly to your WAF rules. Flow: Signals extract indicators → generate/refresh WAF custom rules from the saved threat view → start on Log, graduate to Block/Managed Challenge once matches validate (IPs are NAT-shared; combine with attack score before blocking). Heavier `cf.intel.ip.*` matching still needs a Cloudforce One subscription — Signals is the free on-ramp, not a replacement.
 
+## Charge agents: Monetization Gateway (402, beta) + Pay Per Use (beta)
+
+When the site's second audience is agents, gate and get paid. **Monetization Gateway** (beta, eligible sellers) charges AI agents for consumption — sites, APIs, MCP tools, datasets — with HTTP 402 payments, instead of home-grown API keys and Stripe meters. **Pay Per Use** (beta) covers the reverse flow: AI companies report when they train on / serve publishers' content, Cloudflare handles billing, payouts, and reporting. Both are beta-gated — confirm eligibility and exact wiring via docs/`cf cli search` before promising revenue, and keep Turnstile/bot gating as the access-control layer underneath.
+
 ## Verify live URLs with Kitesurf (Browser Run)
 
 Kitesurf is Cloudflare's agent-first browser: runs entirely on Workers (no special privileges, scales per task), stateless/ephemeral, 3–7× less CPU/memory than Chromium for screenshots/HTML extraction at ~1.7–1.8× wall time. Free while in beta behind per-account limits. Try rendering first in the playground (`kitesurf.dev`) or terminal (`brew install cloudflare/cloudflare/kitesurf`).
