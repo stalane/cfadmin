@@ -41,6 +41,8 @@ Triage: builds → `cloudflare-builds` MCP (`cf builds`); live errors → `cloud
 
 Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wrangler delegation).
 
+Post-quantum WebCrypto (opt-in): add `"webcrypto_modern_algorithms"` to `compatibility_flags` for ML-KEM-768/1024 key establishment (`generateKey` + `encapsulateBits`/`decapsulateBits`) and ML-DSA-44/65/87 signing (`SubtleCrypto.supports()` gates, AKP-type JWKs). Verify PQ coverage per domain in HTTP Analytics / Log Explorer / Logpush, which now report TLS 1.3 PQ status — don't claim quantum-readiness without checking the telemetry.
+
 ## Next.js via Vinext 1.0 (not OpenNext/Pages)
 
 Next.js App/Pages/Hybrid Router apps run on Workers through Vinext (open-source Vite plugin, `github.com/cloudflare/vinext`, docs `vinext.dev`) — keep `app/`, `pages/`, `next.config.js`. New: `npm create vinext-app@latest my-app`. Migrate: `npx vinext check && npx vinext init` (non-destructive, `next dev` keeps working). Dev/build: `vinext dev/build` (drop-in `next` CLI). Deploy to Workers: `npx @vinext/cloudflare deploy [--warm-cache]` (Workers Cache route-ISR + KV data cache + Images optimizer; bindings via `cloudflare:workers`). Portable: Nitro adapter for Node/Vercel/Netlify/AWS. Limits: partial `use cache` (Cache Components) support; verify versioned compat matrix before promising a feature.
