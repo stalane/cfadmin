@@ -49,6 +49,10 @@ Next.js App/Pages/Hybrid Router apps run on Workers through Vinext (open-source 
 
 Editor-managed sites (blog, marketing, agency/client builds) run on Workers through EmDash (open-source MIT CMS for Astro, `github.com/emdash-cms/emdash`, docs `docs.emdashcms.com`) — Astro SSR + admin (`/_emdash/admin/`, passkeys) + API/CLI/MCP + EmDash Agent Skills. New: `npm create emdash@latest` (Node 22.16+, SQLite local, `.env` holds `EMDASH_ENCRYPTION_KEY` — never commit). Existing Astro site: add EmDash per docs instead of scaffolding. Deploy to Workers (KV object cache, Hyperdrive DB adapter, Workers Cache) or multi-tenant via Workers for Platforms (`cf deploy --dispatch-namespace`). Plugins are sandboxed (Dynamic Workers on Cloudflare, workerd locally — own storage only, extra abilities declared + admin-approved) from the decentralized AT Protocol registry (`plugins.emdashcms.com`, free today, paid later). Proven at Cloudflare Blog scale (M pageviews/week, 5k RPS spikes).
 
+## Observe with Traces (one platform, Oct 2026)
+
+Logs alone don't explain a slow or blocked request — follow it. **Cloudflare Traces** (enable per domain) show production paths span-by-span: which security rule fired, what transforms rewrote, cache vs origin, where Workers time went; find one request by Ray ID. **Workers traces** auto-instrument fetch, binding (KV/R2/DO), and handler calls with zero code changes. Logs + traces + analytics + alerts + dashboards + OTLP export now live in one observability surface with unified pricing — chart Workers logs/traces in Custom Dashboards next to analytics, export to existing stacks via OTLP instead of building parallel logging. Triage order for a bad request: trace first (where did it go), logs second (what did it say).
+
 ## Previews (branch/PR isolation)
 
 `cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
