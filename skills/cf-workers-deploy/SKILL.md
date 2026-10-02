@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
 
 Flow: `cf init` (new/Vite setup) → `cf dev` → `cf deploy` (static sites: `cf deploy` with no config; Pages: `cf pages deploy`). Migrate: `cf migrate [--dry-run]` (Vite Workers convert to config.ts; esbuild/Rust/Python keep delegating to Wrangler during beta). Secrets via secret bindings / `cf deploy --secrets-file` (never in config). Pages production: `--branch main`. CI: token in GitHub Secrets. Audit gate (first upload): `security-audit` quick pass BEFORE deploy; fix High/Critical first. Abuse gate (every deploy): paid/external-cost route → refuse until Turnstile siteverify verified live (tokenless POST → 403, browser flow → 200).
 
-Triage: builds → `cloudflare-builds` MCP (`cf builds`); live errors → `cloudflare-observability` MCP (`cf observability`/`cf logs`, `$metadata.service/message/error` first).
+Triage: builds → `cloudflare-builds` MCP (`cf builds`); live errors → `cloudflare-observability` MCP (`cf observability`/`cf logs`, `$metadata.service/message/error` first); recurring production failures → Workers Issues (auto-groups repeats with stack traces, logs, traces, app context) routed straight to a coding agent that investigates and opens a PR — wire the agent destination once, then let failures arrive as ready-to-fix work items instead of raw alerts.
 
 Python Workers GA: FastAPI/Django/Flask via `workers.asgi`/`wsgi` (still via Wrangler delegation).
 
