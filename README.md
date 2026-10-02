@@ -70,11 +70,11 @@ a separate non-Cloudflare host is not.
 
 | Skill | Plane | Reuses |
 |---|---|---|
-| `cf-workers-deploy` | `cloudflare.config.ts`, bindings/triggers, `cf init/dev/deploy/migrate`, Vite, secrets, previews, builds/observability triage, Turnstile + audit gates (wrangler fallback) | `wrangler`, `workers-best-practices` |
-| `cf-data` | D1 / KV / R2 / Hyperdrive / Queues choice + recipes | `cloudflare` data refs |
-| `cf-realtime` | Durable Objects / Workflows / Containers / Sandbox / Agents / Cron (`agents-starter` scaffold) | `durable-objects`, `agents-sdk` |
-| `cf-ai` | Workers AI / Vectorize / AI Gateway | `cloudflare` AI refs |
-| `cf-frontdoor` | DNS / Pages / Tunnel / WAF / Turnstile / Email / Kitesurf verify | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
+| `cf-workers-deploy` | `cloudflare.config.ts`, bindings/triggers, `cf init/dev/deploy/migrate`, Vite, secrets, previews, builds/logs/traces triage, Issues-to-agent, PQ WebCrypto, Turnstile + audit gates (wrangler fallback) | `wrangler`, `workers-best-practices` |
+| `cf-data` | D1 / KV (+Instant) / R2 / Hyperdrive / Queues / K2 streams / Basin analytics (Pipelines/Catalog/SQL) choice + recipes | `cloudflare` data refs |
+| `cf-realtime` | Durable Objects / Workflows / Containers (+snapshots) / Sandbox / Agents / Cron (`agents-starter` scaffold), Streamline media, Artifacts events | `durable-objects`, `agents-sdk` |
+| `cf-ai` | Workers AI (+Clef) / Vectorize / AI Gateway (+Web Search, Auto Router, User Insights) / AI Search | `cloudflare` AI refs |
+| `cf-frontdoor` | DNS / Registrar / Pages / Tunnel (+Protected Quick) / WAF (+App Profiles, Threat Signals) / Turnstile / Email / agent monetization (402) / Kitesurf verify | `exposing-local-service-with-cloudflare-tunnel`, `turnstile-spin` |
 | `cf-aiready` | sitemap / Content-Signal / Markdown negotiation / API catalog / Link headers / auth.md | RFC 9727, RFC 8288, RFC 9728, RFC 8414 |
 
 Each skill file is <500 words and delegates to existing references rather
