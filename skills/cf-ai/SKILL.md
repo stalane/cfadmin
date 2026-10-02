@@ -11,7 +11,7 @@ Run inference at the edge, store embeddings in Vectorize, front every provider c
 
 ## When to Use
 
-- LLM text, embeddings, image models, semantic search/RAG, multi-provider routing, usage caching.
+- LLM text, embeddings, image models, semantic search/RAG, multi-provider routing, usage caching, live web grounding.
 - When NOT: CRUD/realtime (→ `cf-data` / `cf-realtime`).
 
 ## Implementation
@@ -26,6 +26,10 @@ const hits = await env.VECTORIZE.query(vec.data[0], { topK: 5 });
 ```
 
 Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than calling providers directly. Verify model IDs against the docs MCP — they change; never trust memory. Python Workers run `openai`/`langchain`/`mcp` natively; use `langchain-cloudflare` for Workers AI.
+
+## Live web grounding via Web Search API (beta, Oct 2026)
+
+When answers must reflect post-cutoff reality, ground the model with Web Search API instead of letting it guess URLs. Providers at launch: Ceramic.ai, Exa, Linkup (all Zero Data Retention through Cloudflare, verified-bot crawling standards; BYOK supported, otherwise billed to AI Gateway credits at list price). Two integration paths: dedicated search call from a Worker (`env.AI.websearch({ gatewayId, query, provider, limit })`) or REST (`POST /accounts/{id}/ai/websearch/`), both routed through your AI Gateway (logs + billing in one place); or pass-through of providers' native search tools (Anthropic/OpenAI/xAI/Alibaba flags) via the Gateway. Agentic pattern: expose it as a `web_search` tool — model calls the tool, Worker runs the search, results go back into context.
 
 Manage via `cf`: `cf ai …`, `cf ai-gateway …`, `cf ai-search …` (JSON default, discover with `cf cli search`). Wire in config via `bindings.ai()` / `bindings.vectorize({ name })`.
 
