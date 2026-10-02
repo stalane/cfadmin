@@ -27,6 +27,10 @@ const hits = await env.VECTORIZE.query(vec.data[0], { topK: 5 });
 
 Route via AI Gateway (caching, rate limits, multi-provider fallback) rather than calling providers directly. Verify model IDs against the docs MCP — they change; never trust memory. Python Workers run `openai`/`langchain`/`mcp` natively; use `langchain-cloudflare` for Workers AI.
 
+## Classification with Clef (open-source, on Workers AI)
+
+For classify-then-route steps (triage, moderation, intent, tool choice) reach for Clef before a general LLM: `@cf/cloudflare/clef` and the faster `@cf/cloudflare/clef-flash` are Cloudflare's first open-source decision models, served on Workers AI for high-speed classification inside agentic workflows — cheaper and lower-latency than asking a chat model to label. Teams can RL-fine-tune decision models on their own data via the new tuning platform. Confirm exact input/output shapes in the Workers AI model docs before wiring (decision models don't take chat `messages`).
+
 ## Live web grounding via Web Search API (beta, Oct 2026)
 
 When answers must reflect post-cutoff reality, ground the model with Web Search API instead of letting it guess URLs. Providers at launch: Ceramic.ai, Exa, Linkup (all Zero Data Retention through Cloudflare, verified-bot crawling standards; BYOK supported, otherwise billed to AI Gateway credits at list price). Two integration paths: dedicated search call from a Worker (`env.AI.websearch({ gatewayId, query, provider, limit })`) or REST (`POST /accounts/{id}/ai/websearch/`), both routed through your AI Gateway (logs + billing in one place); or pass-through of providers' native search tools (Anthropic/OpenAI/xAI/Alibaba flags) via the Gateway. Agentic pattern: expose it as a `web_search` tool — model calls the tool, Worker runs the search, results go back into context.
