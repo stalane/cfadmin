@@ -18,7 +18,7 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 
 - **Per-entity state / WebSockets** → Durable Object (one SQLite-backed stub per room/user/device). Replaces socket.io servers, Redis pub/sub.
 - **Long multi-step jobs** (retries, sleeps, human approval) → Workflows. Replaces Celery/RQ workers.
-- **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern). Replaces Docker-on-VPS. For running untrusted code (AI runners, judges, eval harnesses) prefer `sandbox-sdk` over Containers.
+- **Sandboxed code execution** → Containers (`cloudbox`, `cloudsail` pattern), rebuilt for agent sandboxes: ~6× faster starts, per-sandbox image + instance type chosen at runtime from the controlling Durable Object, filesystem snapshots in public beta. Replaces Docker-on-VPS. For running untrusted code (AI runners, judges, eval harnesses) prefer `sandbox-sdk` (1.0: your own DO class drives each sandbox via `this.ctx.container`) over raw Containers.
 - **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern); scaffold new ones from `agents-starter`.
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
 - **Schedules** → Cron via `triggers.scheduled({ schedule })` in `cloudflare.config.ts`, not a daemon.
@@ -31,6 +31,15 @@ export class Room implements DurableObject {
   constructor(private state: DurableObjectState, private env: Env) {}
   async fetch(req: Request) { /* websocketUpgrade or RPC */ return new Response("ok"); }
 }
+```
+
+Snapshot a warm sandbox and resume it later (public beta, `durable_object` scheduling policy only — snapshots are immutable, filesystem-only, 30-day TTL refreshed on restore):
+
+```ts
+const snap = await this.ctx.container.snapshotContainer({ name: "warmed" });
+await this.ctx.storage.put("snap", snap);
+// later, incl. from another DO:
+this.ctx.container.start({ containerSnapshot: snap });
 ```
 
 ## Common Mistakes
