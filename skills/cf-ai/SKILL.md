@@ -41,6 +41,10 @@ Default every gateway to cost-aware routing before hand-picking models. **Auto R
 
 Manage via `cf`: `cf ai …`, `cf ai-gateway …`, `cf ai-search …` (JSON default, discover with `cf cli search`). Wire in config via `bindings.ai()` / `bindings.vectorize({ name })`.
 
+## AI Search (GA Oct 2026) for hosted retrieval
+
+When the project needs search-over-own-content without hand-rolled RAG, prefer managed AI Search over assembling Vectorize + chunking + ranking yourself. GA brings: direct image-pixel embeddings for visual search, OCR over scanned PDFs, files up to 10 MiB, and any-chat-model compatibility. Hand-rolled Vectorize RAG stays for custom embedding/ranking control; AI Search wins for time-to-working-search. Confirm GA pricing in docs before quoting costs.
+
 ## Common Mistakes
 
 - Calling OpenAI/Anthropic from a VPS backend instead of from the Worker through AI Gateway.
