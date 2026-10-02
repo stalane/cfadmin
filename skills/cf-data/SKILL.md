@@ -1,9 +1,9 @@
 ---
 name: cf-data
-description: Use when choosing or wiring Cloudflare data storage — D1, KV, R2, Hyperdrive, Queues, Pipelines — bindings, migrations, uploads, or replacing Postgres, Redis, or S3 with Cloudflare-native storage.
+description: Use when choosing or wiring Cloudflare data storage — D1, KV, R2, Hyperdrive, Queues, Basin analytics (Pipelines/Catalog/SQL) — bindings, migrations, uploads, or replacing Postgres, Redis, or S3 with Cloudflare-native storage.
 ---
 
-# cf-data (D1/KV/R2/Hyperdrive/Queues, Cloudflare-only)
+# cf-data (D1/KV/R2/Hyperdrive/Queues/Basin, Cloudflare-only)
 
 ## Overview
 
@@ -34,11 +34,15 @@ digraph choice {
 }
 ```
 
-Config (`cloudflare.config.ts`, `bindings.*` — LSP-autocompleted): `bindings.d1/kv/r2/queue` (e.g. `DB: bindings.d1({ name: `mydb-${mode}` })`). Access via `env.DB/KV/R2` in-process. Queues for async/background work off the critical path; Pipelines for streaming ETL to R2.
+Config (`cloudflare.config.ts`, `bindings.*` — LSP-autocompleted): `bindings.d1/kv/r2/queue` (e.g. `DB: bindings.d1({ name: `mydb-${mode}` })`). Access via `env.DB/KV/R2` in-process. Queues for async/background work off the critical path; Basin Pipelines for streaming ETL into analytics tables.
 
-Manage via `cf` (JSON default, `-q` for agents): `cf d1 list/get`, `cf d1 migrations create/apply`, `cf kv namespaces create/get`, `cf r2 …`, `cf queues …`, `cf pipelines …`. Discover with `cf cli search "<action + resource>"`, details via `cf schema <cmd...>`. Wrangler equivalents (`wrangler d1 …`) remain as beta fallback.
+Manage via `cf` (JSON default, `-q` for agents): `cf d1 list/get`, `cf d1 migrations create/apply`, `cf kv namespaces create/get`, `cf r2 …`, `cf queues …`, `cf cli search "basin …"` for Basin ops. Discover with `cf cli search "<action + resource>"`, details via `cf schema <cmd...>`. Wrangler equivalents (`wrangler d1 …`, `wrangler basin sql query`, `wrangler r2 bucket catalog enable`) remain as beta fallback.
 
-Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk). Python drivers (`asyncpg`/`aiomysql`) work over Hyperdrive's TCP sockets in Python Workers.
+Replacements (hard-refuse the left): self-hosted Postgres/MySQL → D1 or Hyperdrive; Redis → KV (cache/sessions) or Durable Objects (strongly consistent per-entity); S3/MinIO → R2; filesystem writes → R2 (Workers have no persistent disk); self-hosted warehouse/lake (Snowflake-S3, BigQuery, Kafka→warehouse) → Basin (open Iceberg tables, no egress fees). Python drivers (`asyncpg`/`aiomysql`) work over Hyperdrive's TCP sockets in Python Workers.
+
+## Analytics with Basin (GA Oct 2026, formerly Cloudflare Data Platform)
+
+OLTP rows live in D1; event-scale analytics lives in Basin — never scan millions of D1 rows for dashboards. Flow: **Basin Pipelines** (ingest via Workers bindings, HTTP endpoints, or Logpush; SQL transforms; sinks Iceberg tables or R2 files) → **Basin Catalog** (managed Apache Iceberg catalog inside your R2 bucket; standard Iceberg REST interface for Spark/Snowflake/DuckDB/PyIceberg; auto compaction + snapshot expiry) → **Basin SQL** (serverless distributed SQL over Catalog tables — JOINs, subqueries, multi-table CTEs; billed per compressed TB scanned). Tables stay portable and readable cross-cloud with zero egress fees. Verify exact `cf`/wrangler verbs via `cf cli search "basin …"` + docs MCP (names moved: Pipelines→Basin Pipelines, R2 Data Catalog→Basin Catalog, R2 SQL→Basin SQL).
 
 Previews: same `id`/`database_id`/`bucket_name`/queue-name = shared data. Isolate by binding the Preview to a different resource (`previews.d1_databases` etc). Shared-staging pattern: base branch points `previews.d1_databases` at one staging DB and mirrors it in `wrangler.preview-migrations.jsonc` for `d1 migrations apply PREVIEW_DB --remote`; per-branch override hits both files.
 
@@ -46,7 +50,7 @@ Previews: same `id`/`database_id`/`bucket_name`/queue-name = shared data. Isolat
 
 - REST calls to Cloudflare APIs from inside the Worker instead of bindings.
 - `await response.text()` on unbounded bodies — stream large payloads.
-- KV for relational queries; D1 for blob storage; R2 for per-request counters.
+- KV for relational queries; D1 for blob storage; R2 for per-request counters; D1 scans for event-scale analytics (use Basin).
 - Forgetting to update `cloudflare.config.ts` bindings after adding a store (LSP should autocomplete `bindings.*`).
 - Reaching for `wrangler` resource commands before trying `cf cli search`.
 
@@ -59,4 +63,4 @@ Previews: same `id`/`database_id`/`bucket_name`/queue-name = shared data. Isolat
 
 ## Reuses
 
-`cloudflare` (`d1/`, `kv/`, `r2/`, `hyperdrive/`, `queues/`, `pipelines/` refs), `workers-best-practices` (bindings-over-REST, streaming). Official starters: `hyperdrive-demo`, `d1-northwind`.
+`cloudflare` (`d1/`, `kv/`, `r2/`, `hyperdrive/`, `queues/`, `basin/`, `basin-pipelines/`, `basin-catalog/`, `basin-sql/` refs), `workers-best-practices` (bindings-over-REST, streaming). Official starters: `hyperdrive-demo`, `d1-northwind`.
