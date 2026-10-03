@@ -22,7 +22,7 @@ Stateful coordination lives in Durable Objects; multi-step jobs in Workflows; sc
 - **Stateful AI agents** → Agents SDK on top of DO (`forja`, `vibesdk` pattern); scaffold new ones from `agents-starter`.
 - **Fire-and-forget background** → Queues + `ctx.waitUntil()` (never destructure `ctx`).
 - **Continuous media pipelines** (never-ending video ingest/transcode/delivery) → Streamline pattern: Workers + Durable Objects orchestrate a containerized media engine for long-running processing, rather than one-shot Workflows or external transcode boxes. Check the Streamline reference before designing custom video infra.
-- **Repo-event automation** (CI, mirrors, agent hooks on push) → Artifacts event subscriptions (open beta): `artifacts` source (`repo.created/deleted/forked/imported`) and `artifacts.repo` source (`pushed/cloned/fetched`) feed Queues/Workflows — never a self-hosted git + webhook box. Git hosting itself lives on Cloudflare (Workers bindings, jurisdiction controls).
+- **Repo-event automation** (CI, mirrors, agent hooks on push) → Artifacts event subscriptions (open beta): `artifacts` source (`repo.created/deleted/forked/imported`) and `artifacts.repo` source (`pushed/cloned/fetched`) feed Queues/Workflows — never a self-hosted git + webhook box. Git hosting itself lives on Cloudflare (Workers bindings, jurisdiction controls). Paid-gate: Artifacts needs Workers Paid (billing from Oct 14, 2026) — on Free, keep GitHub as the repo and consume its webhooks via Queues/Workflows instead.
 - **Schedules** → Cron via `triggers.scheduled({ schedule })` in `cloudflare.config.ts`, not a daemon.
 - Manage via `cf`: `cf durable-objects …`, `cf workflows …`, `cf containers …`, `cf queues …` (JSON default). Discover with `cf cli search`.
 

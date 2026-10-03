@@ -57,7 +57,7 @@ Logs alone don't explain a slow or blocked request — follow it. **Cloudflare T
 
 ## Previews (branch/PR isolation)
 
-`cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
+`cf previews` manages branch Previews under the same Worker; `cf deploy` stays production. Protect with Access; PR URLs via Workers Builds. Artifacts repos (open beta, Workers Paid — billing from Oct 14, 2026) deploy the same way: push to the production branch deploys the Worker, other branches create/update Previews — connect via Workers Builds instead of wiring GitHub. Same isolation rules as Wrangler Previews: DO/Containers auto-isolate; KV/D1/R2/Queues/Vectorize/Hyperdrive share unless rebound — see `cf-data`; Workflows/service-bindings/consumers/cron/routes stay on prod — see `cf-realtime`.
 
 ## Quick Reference
 
